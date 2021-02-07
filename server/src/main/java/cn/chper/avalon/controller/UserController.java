@@ -1,7 +1,8 @@
 package cn.chper.avalon.controller;
 
+import cn.chper.avalon.form.LoginForm;
+import cn.chper.avalon.form.SimpleResponse;
 import cn.chper.avalon.service.UserService;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,11 +17,11 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/login")
-    JSONObject login(@RequestBody JSONObject user) {
-        JSONObject res = new JSONObject();
-        res.put("haha", user.getString("username"));
-        res.put("heihei", user.getString("password"));
-        return res;
+    SimpleResponse login(@RequestBody LoginForm user) {
+        if (userService.login(user.getUsername(), user.getPassword())) {
+            return new SimpleResponse(true, userService.getToken(user.getUsername()));
+        }
+        return new SimpleResponse(false, null);
     }
 
 }
