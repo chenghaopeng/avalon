@@ -2,6 +2,8 @@ package cn.chper.avalon.service;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.fastjson.JSONArray;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ public class GameService {
             case "new": {
                 String roomNo = RandomStringUtils.randomNumeric(6);
                 while (rooms.containsKey(roomNo)) roomNo = RandomStringUtils.randomNumeric(6);
-                Room room = new Room();
+                Room room = new Room(roomNo, username);
                 rooms.put(roomNo, room);
                 System.out.println("收到消息解析：[" + username + "][创建房间" + roomNo + "]");
                 return Payload.newPayload("roomno", roomNo);
@@ -83,6 +85,45 @@ public class GameService {
                 }
                 else {
                     return Payload.newPayload("fail", "无法结束游戏，问问 pp 是怎么回事。");
+                }
+            }
+            case "task": {
+                System.out.println("收到消息解析：[" + username + "][发起任务]");
+                Room room = userIn.get(username);
+                if (room == null) {
+                    return Payload.newPayload("fail", "你还未进入房间！");
+                }
+                if (room.task(username, (JSONArray) payload.data)) {
+                    return null;
+                }
+                else {
+                    return Payload.newPayload("fail", "发起任务失败！");
+                }
+            }
+            case "vote": {
+                System.out.println("收到消息解析：[" + username + "][投票]");
+                Room room = userIn.get(username);
+                if (room == null) {
+                    return Payload.newPayload("fail", "你还未进入房间！");
+                }
+                if (room.vote(username, (Boolean) payload.data)) {
+                    return null;
+                }
+                else {
+                    return Payload.newPayload("fail", "投票失败！");
+                }
+            }
+            case "action": {
+                System.out.println("收到消息解析：[" + username + "][行动]");
+                Room room = userIn.get(username);
+                if (room == null) {
+                    return Payload.newPayload("fail", "你还未进入房间！");
+                }
+                if (room.action(username, (Boolean) payload.data)) {
+                    return null;
+                }
+                else {
+                    return Payload.newPayload("fail", "行动失败！");
                 }
             }
             default: return Payload.newPayload("fail", "你发送了奇怪的指令！");
