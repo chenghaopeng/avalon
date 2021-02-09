@@ -1,4 +1,4 @@
-import { Button, Input } from 'antd';
+import { Button, Input, message } from 'antd';
 import { UserOutlined, LockOutlined, FieldNumberOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -18,7 +18,6 @@ const request = async (url, data) => {
 };
 
 function App() {
-  const [stage, setStage] = useState(0);
   const [ws, setWs] = useState(null);
   const [connected, setConnected] = useState(false);
   const [inRoom, setInRoom] = useState(false);
@@ -30,8 +29,8 @@ function App() {
     nws.onopen = () => { console.log("connecting..."); setConnected(true); };
     nws.onclose = () => { console.log("closed..."); removeToken(); setConnected(false); };
     nws.onerror = () => { console.error("ERROR"); removeToken(); setConnected(false); };
-    nws.onmessage = (message) => {
-      const { type, data } = JSON.parse(message.data);
+    nws.onmessage = (payload) => {
+      const { type, data } = JSON.parse(payload.data);
       switch (type) {
         case "roomno":
           setRoomNo(data);
@@ -39,6 +38,12 @@ function App() {
         case "status":
           setInRoom(true);
           setStatus(data);
+          break;
+        case "fail":
+          message.error(data);
+          break;
+        default:
+          message.info(payload);
           break;
       }
     };
@@ -70,7 +75,9 @@ function App() {
     if (result.success) {
       setToken(result.data);
       connect(result.data);
-      setStage(1);
+    }
+    else {
+      message.error("用户名或密码为空或错误！");
     }
   }
 

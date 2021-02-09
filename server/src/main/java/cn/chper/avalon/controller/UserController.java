@@ -20,6 +20,7 @@ public class UserController {
 
     @PostMapping("/login")
     SimpleResponse login(@RequestBody LoginForm user) {
+        if (user.getUsername().trim().isEmpty() || user.getUsername().isEmpty()) return new SimpleResponse(false, null);
         if (userService.login(user.getUsername(), user.getPassword())) {
             return new SimpleResponse(true, userService.getToken(user.getUsername()));
         }

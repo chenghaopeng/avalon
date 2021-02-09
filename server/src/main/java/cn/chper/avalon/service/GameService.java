@@ -42,7 +42,7 @@ public class GameService {
                 }
                 if (room.enter(username)) {
                     userIn.put(username, room);
-                    return Payload.newPayload("enter", null);
+                    return null;
                 }
                 else {
                     return Payload.newPayload("fail", "无法进入房间！");
@@ -65,7 +65,7 @@ public class GameService {
                     return null;
                 }
                 else {
-                    return Payload.newPayload("fail", "无法开始游戏，问问 pp 是怎么回事。");
+                    return Payload.newPayload("fail", "暂时只支持 6 或 7 人局。");
                 }
             }
             case "stop": {
