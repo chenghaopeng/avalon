@@ -29,4 +29,13 @@ public class UserService {
         return token;
     }
 
+    public static String getUsernameByToken(String token) {
+        for (String username : tokens.keySet()) {
+            if (tokens.get(username).equals(token)) {
+                return username;
+            }
+        }
+        return null;
+    }
+
 }
