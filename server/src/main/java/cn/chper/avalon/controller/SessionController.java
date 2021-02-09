@@ -41,10 +41,12 @@ public class SessionController {
         this.session = session;
         sessions.put(username, this);
         GameService.reenter(username);
+        System.out.println("连接成功：[" + this.username + "]");
     }
 
     @OnClose
     public void onClose(Session session) {
+        System.out.println("连接关闭：[" + this.username + "]");
         try {
             sessions.remove(this.username);
         }
@@ -55,6 +57,7 @@ public class SessionController {
 
     @OnError
     public void onError(Session session, Throwable t) {
+        System.out.println("连接错误：[" + this.username + "]");
         try {
             sessions.remove(this.username);
         }
@@ -65,6 +68,7 @@ public class SessionController {
 
     @OnMessage
     public void onMessage(Session session, String message) {
+        System.out.println("收到消息：[" + this.username + "][" + message + "]");
         String response = GameService.userOperation(this.username, message);
         try {
             if (response != null) session.getBasicRemote().sendText(response);

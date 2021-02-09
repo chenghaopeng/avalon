@@ -29,9 +29,11 @@ public class GameService {
                 while (rooms.containsKey(roomNo)) roomNo = RandomStringUtils.randomNumeric(6);
                 Room room = new Room();
                 rooms.put(roomNo, room);
+                System.out.println("收到消息解析：[" + username + "][创建房间" + roomNo + "]");
                 return Payload.newPayload("roomno", roomNo);
             }
             case "enter": {
+                System.out.println("收到消息解析：[" + username + "][进入房间" + payload.data + "]");
                 Room room = rooms.get((String) payload.data);
                 if (room == null) {
                     return Payload.newPayload("fail", "房间号错误！");
@@ -49,6 +51,7 @@ public class GameService {
                 }
             }
             case "leave": {
+                System.out.println("收到消息解析：[" + username + "][离开房间]");
                 Room room = userIn.get(username);
                 if (room != null) {
                     room.leave(username);
@@ -57,6 +60,7 @@ public class GameService {
                 return null;
             }
             case "start": {
+                System.out.println("收到消息解析：[" + username + "][开始游戏]");
                 Room room = userIn.get(username);
                 if (room == null) {
                     return Payload.newPayload("fail", "你还未进入房间！");
@@ -69,6 +73,7 @@ public class GameService {
                 }
             }
             case "stop": {
+                System.out.println("收到消息解析：[" + username + "][结束游戏]");
                 Room room = userIn.get(username);
                 if (room == null) {
                     return Payload.newPayload("fail", "你还未进入房间！");
