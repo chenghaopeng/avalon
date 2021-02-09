@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.Session;
 
+import com.alibaba.fastjson.JSONObject;
+
 import cn.chper.avalon.constant.RoomState;
 import cn.chper.avalon.controller.SessionController;
 import cn.chper.avalon.form.Payload;
@@ -53,7 +55,6 @@ public class Room {
         }
         state = RoomState.RUNNING;
         log(starterUsername + " 开始了游戏");
-        // TODO: 给不同角色发不同的“看到”信息
         return true;
     }
 
@@ -70,11 +71,15 @@ public class Room {
         broadcast();
     }
 
-    private void broadcast() {
-        String message = Payload.newPayload("log", logs);
+    public void broadcast() {
+        JSONObject status = new JSONObject();
+        status.put("log", logs);
+        status.put("running", state == RoomState.RUNNING);
         for (String username : usernames) {
             SessionController sessionController = SessionController.sessions.get(username);
             if (sessionController == null) continue;
+            status.put("info", roleInfo(username));
+            String message = Payload.newPayload("status", status);
             Session session = sessionController.session;
             try {
 				session.getBasicRemote().sendText(message);
@@ -82,6 +87,49 @@ public class Room {
 				e.printStackTrace();
 			}
         }
+    }
+
+    private String roleInfo(String username) {
+        if (state != RoomState.RUNNING) return "";
+        StringBuilder sb = new StringBuilder();
+        Role role = users.get(username);
+        sb.append("你的身份是 ");
+        sb.append(role.toString());
+        sb.append(" 。\n");
+        if (Role.isNormal(role)) sb.append("你的身份不能看到任何人");
+        else sb.append("你的身份能看到的是：");
+        if (role.type == Role.RedJoker) {
+            for (String username2 : users.keySet()) {
+                Role role2 = users.get(username2);
+                if (role2.type == Role.BlackJoker || role2.type == Role._2 || role2.type == Role.BlackA) {
+                    sb.append(" ");
+                    sb.append(username2);
+                    sb.append(" ");
+                }
+            }
+        }
+        if (role.type == Role.King) {
+            for (String username2 : users.keySet()) {
+                Role role2 = users.get(username2);
+                if (role2.type == Role.BlackJoker || role2.type == Role.RedJoker) {
+                    sb.append(" ");
+                    sb.append(username2);
+                    sb.append(" ");
+                }
+            }
+        }
+        if (role.type == Role.BlackJoker || role.type == Role._2) {
+            for (String username2 : users.keySet()) {
+                Role role2 = users.get(username2);
+                if (role2.type == Role.BlackJoker || role2.type == Role._2) {
+                    sb.append(" ");
+                    sb.append(username2);
+                    sb.append(" ");
+                }
+            }
+        }
+        sb.append("。");
+        return sb.toString();
     }
 
 }

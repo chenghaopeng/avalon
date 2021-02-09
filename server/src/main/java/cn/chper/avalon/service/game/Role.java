@@ -42,4 +42,18 @@ public class Role {
         return !isGood(r);
     }
 
+    public static boolean isNormal(Role r) {
+        return r.type == RedA || r.type == BlackA;
+    }
+
+    public String toString() {
+        if (this.type == RedJoker) return "大王";
+        if (this.type == King) return "K";
+        if (this.type == RedA) return "红A";
+        if (this.type == BlackJoker) return "小王";
+        if (this.type == _2) return "2";
+        if (this.type == BlackA) return "黑A";
+        return null;
+    }
+
 }

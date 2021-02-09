@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -39,11 +40,27 @@ public class SessionController {
         this.username = username;
         this.session = session;
         sessions.put(username, this);
+        GameService.reenter(username);
     }
 
     @OnClose
     public void onClose(Session session) {
-        sessions.remove(this.username);
+        try {
+            sessions.remove(this.username);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @OnError
+    public void onError(Session session, Throwable t) {
+        try {
+            sessions.remove(this.username);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @OnMessage

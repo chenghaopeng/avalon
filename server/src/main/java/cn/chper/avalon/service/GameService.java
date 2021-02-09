@@ -15,6 +15,12 @@ public class GameService {
 
     public static ConcurrentHashMap<String, Room> userIn = new ConcurrentHashMap<>();
 
+    public static void reenter(String username) {
+        if (userIn.containsKey(username)) {
+            userIn.get(username).broadcast();
+        }
+    }
+
     public static String userOperation(String username, String operation) {
         Payload payload = new Payload(operation);
         switch (payload.type) {
@@ -30,9 +36,13 @@ public class GameService {
                 if (room == null) {
                     return Payload.newPayload("fail", "房间号错误！");
                 }
+                if (userIn.get(username) != null) {
+                    userIn.get(username).leave(username);
+                    userIn.remove(username);
+                }
                 if (room.enter(username)) {
                     userIn.put(username, room);
-                    return null;
+                    return Payload.newPayload("enter", null);
                 }
                 else {
                     return Payload.newPayload("fail", "无法进入房间！");
