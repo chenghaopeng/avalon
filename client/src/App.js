@@ -181,7 +181,7 @@ function App() {
         <Button onClick={handleLeaveRoom}>退出房间</Button>
         <div>房间内玩家：{ status.users.join(", ") }</div>
       </> }
-      <a className="github-button" href="https://github.com/chenghaopeng/avalon" data-size="large" data-show-count="true" aria-label="Star chenghaopeng/avalon on GitHub">Star</a>
+      <a href="https://github.com/chenghaopeng/avalon">GitHub</a>
     </div>
   );
 }
