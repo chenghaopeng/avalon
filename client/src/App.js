@@ -8,10 +8,12 @@ const getToken = () => sessionStorage.getItem("token") ?? "";
 const setToken = (token) => sessionStorage.setItem("token", token);
 const removeToken = () => sessionStorage.removeItem("token");
 
+const server = "localhost:8080";
+
 const request = async (url, data) => {
   const result = await axios({
     method: "POST",
-    url: "http://localhost:8080/api" + url,
+    url: `http://${server}/api${url}`,
     data
   });
   return result.data;
@@ -25,7 +27,7 @@ function App() {
   
   const connect = (token) => {
     if (ws && !ws.CLOSED) ws.close();
-    const nws = new WebSocket(`ws://localhost:8080/game/${token}`);
+    const nws = new WebSocket(`ws://${server}/game/${token}`);
     nws.onopen = () => { console.log("connecting..."); setConnected(true); };
     nws.onclose = () => { console.log("closed..."); removeToken(); setConnected(false); };
     nws.onerror = () => { console.error("ERROR"); removeToken(); setConnected(false); };
