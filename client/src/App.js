@@ -1,4 +1,4 @@
-import { Button, Input, Checkbox, message } from 'antd';
+import { Button, Input, Checkbox, Modal, message } from 'antd';
 import { UserOutlined, LockOutlined, FieldNumberOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -98,8 +98,16 @@ function App() {
   };
 
   const handleLeaveRoom = () => {
-    sendMessage("leave", null);
-    setInRoom(false);
+    Modal.confirm({
+      title: "确认",
+      content: "确定要退出房间？",
+      okText: "确定",
+      cancelText: "取消",
+      onOk: () => {
+        sendMessage("leave", null);
+        setInRoom(false);
+      }
+    });
   };
 
   const handleNewRoom = () => {
@@ -111,7 +119,13 @@ function App() {
   };
 
   const handleStopGame = () => {
-    sendMessage("stop", null);
+    Modal.confirm({
+      title: "确认",
+      content: "确定要结束游戏？",
+      okText: "确定",
+      cancelText: "取消",
+      onOk: () => { sendMessage("stop", null); }
+    });
   };
 
   const [selected, setSelected] = useState([])
@@ -178,7 +192,7 @@ function App() {
         <Input.TextArea value={status.log} rows={10} />
         { !status.running && <Button type="primary" onClick={handleStartGame}>开始游戏</Button> }
         { status.running && <Button onClick={handleStopGame}>结束游戏</Button> }
-        <Button onClick={handleLeaveRoom}>退出房间</Button>
+        { !status.running && <Button onClick={handleLeaveRoom}>退出房间</Button> }
         <div>房间内玩家：{ status.users.join(", ") }</div>
       </> }
       <a href="https://github.com/chenghaopeng/avalon" target="_blank">GitHub</a>
