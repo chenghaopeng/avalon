@@ -10,7 +10,7 @@
     </parent>
     <groupId>cn.chper</groupId>
     <artifactId>avalon</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>Avalon</name>
     <description>阿瓦隆</description>
     <properties>
