@@ -26,6 +26,10 @@ public class Room {
 
     public ConcurrentHashMap<String, Role> users = new ConcurrentHashMap<>();
 
+    public ConcurrentHashMap<String, String> roleInfos = new ConcurrentHashMap<>();
+
+    public int userCount;
+
     public String logs = "";
 
     public boolean tasking = false;
@@ -64,11 +68,12 @@ public class Room {
     public boolean start(String starterUsername) {
         if (state != RoomState.WAITING) return false;
         if (!usernames.contains(starterUsername)) return false;
-        if (usernames.size() <= 5 || usernames.size() >= 8) return false;
-        List<Integer> roles = Arrays.asList(Role.roles[usernames.size()]);
+        userCount = usernames.size();
+        if (userCount <= 5 || userCount >= 9) return false;
+        List<Integer> roles = Arrays.asList(Role.roles[userCount]);
         Collections.shuffle(roles);
         users = new ConcurrentHashMap<>();
-        for (int i = 0; i < usernames.size(); ++i) {
+        for (int i = 0; i < userCount; ++i) {
             String username = usernames.get(i);
             Integer role = roles.get(i);
             users.put(username, new Role(role));
@@ -80,6 +85,8 @@ public class Room {
         voteOfUsers = new ConcurrentHashMap<>();
         failCount = 0;
         actioning = false;
+        roleInfos = new ConcurrentHashMap<>();
+        generateRoleInfos();
         log(starterUsername + " 开始了游戏");
         return true;
     }
@@ -96,7 +103,7 @@ public class Room {
         if (!usernames.contains(username)) return false;
         if (state != RoomState.RUNNING) return false;
         if (tasking) return false;
-        if (array.size() < 2 || array.size() > usernames.size()) return false;
+        if (array.size() < 2 || array.size() > userCount) return false;
         taskUsers = new ArrayList<>();
         for (int i = 0; i < array.size(); ++i) {
             String username2 = array.getString(i);
@@ -191,7 +198,7 @@ public class Room {
         for (String username : usernames) {
             SessionController sessionController = SessionController.sessions.get(username);
             if (sessionController == null) continue;
-            status.put("info", roleInfo(username));
+            status.put("info", roleInfos.get(username));
             String message = Payload.newPayload("status", status);
             Session session = sessionController.session;
             try {
@@ -202,47 +209,35 @@ public class Room {
         }
     }
 
-    private String roleInfo(String username) {
-        if (state != RoomState.RUNNING) return "";
-        StringBuilder sb = new StringBuilder();
-        Role role = users.get(username);
-        sb.append("你的身份是 ");
-        sb.append(role.toString());
-        sb.append(" 。\n");
-        if (Role.isNormal(role)) sb.append("你的身份不能看到任何人");
-        else sb.append("你的身份能看到的是：");
-        if (role.type == Role.RedJoker) {
-            for (String username2 : users.keySet()) {
-                Role role2 = users.get(username2);
-                if (role2.type == Role.BlackJoker || role2.type == Role._2 || role2.type == Role.BlackA) {
-                    sb.append(" ");
-                    sb.append(username2);
-                    sb.append(" ");
+    private void generateRoleInfos() {
+        for (String username : usernames) {
+            StringBuilder sb = new StringBuilder();
+            Role observer = users.get(username);
+            sb.append("你的身份是 ");
+            sb.append(observer.toString());
+            sb.append(" 。\n");
+            sb.append("你的身份能看到的是：");
+            sb.append(" ");
+            sb.append(username);
+            sb.append(" ");
+            if (!(observer.type == Role.RedA || (observer.type == Role.BlackA && userCount != 8))) {
+                for (String username2 : usernames) {
+                    if (username.equals(username2)) continue;
+                    Role theObserved = users.get(username2);
+                    boolean ruleRedJoker = (observer.type == Role.RedJoker) && (theObserved.type == Role.BlackJoker || theObserved.type == Role.Black2 || theObserved.type == Role.BlackA);
+                    boolean ruleRedKing = (observer.type == Role.RedKing) && (theObserved.type == Role.RedJoker || theObserved.type == Role.BlackJoker);
+                    boolean ruleBlacks = (observer.type == Role.BlackJoker || observer.type == Role.Black2) && (theObserved.type == Role.BlackJoker || theObserved.type == Role.Black2 || (theObserved.type == Role.BlackA && userCount == 8));
+                    boolean ruleBlackA = (observer.type == Role.BlackA) && (userCount == 8) && (theObserved.type == Role.BlackJoker || theObserved.type == Role.Black2);
+                    if (ruleRedJoker || ruleRedKing || ruleBlacks || ruleBlackA) {
+                        sb.append(" ");
+                        sb.append(username2);
+                        sb.append(" ");
+                    }
                 }
             }
+            sb.append("。");
+            roleInfos.put(username, sb.toString());
         }
-        if (role.type == Role.King) {
-            for (String username2 : users.keySet()) {
-                Role role2 = users.get(username2);
-                if (role2.type == Role.BlackJoker || role2.type == Role.RedJoker) {
-                    sb.append(" ");
-                    sb.append(username2);
-                    sb.append(" ");
-                }
-            }
-        }
-        if (role.type == Role.BlackJoker || role.type == Role._2) {
-            for (String username2 : users.keySet()) {
-                Role role2 = users.get(username2);
-                if (role2.type == Role.BlackJoker || role2.type == Role._2) {
-                    sb.append(" ");
-                    sb.append(username2);
-                    sb.append(" ");
-                }
-            }
-        }
-        sb.append("。");
-        return sb.toString();
     }
 
 }

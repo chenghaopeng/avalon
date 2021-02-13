@@ -71,7 +71,7 @@ public class GameService {
                     return null;
                 }
                 else {
-                    return Payload.newPayload("fail", "暂时只支持 6 或 7 人局。");
+                    return Payload.newPayload("fail", "暂时只支持 6 - 8 人局。");
                 }
             }
             case "stop": {

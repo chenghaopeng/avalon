@@ -4,13 +4,13 @@ public class Role {
 
     public static final Integer RedJoker = 12;
 
-    public static final Integer King = 11;
+    public static final Integer RedKing = 11;
 
     public static final Integer RedA = 10;
 
     public static final Integer BlackJoker = 3;
 
-    public static final Integer _2 = 2;
+    public static final Integer Black2 = 2;
 
     public static final Integer BlackA = 1;
 
@@ -30,8 +30,9 @@ public class Role {
         null,
         null,
         null,
-        new Integer[]{Role.RedJoker, Role.King, Role.RedA, Role.RedA, Role.BlackJoker, Role._2},
-        new Integer[]{Role.RedJoker, Role.King, Role.RedA, Role.RedA, Role.BlackJoker, Role._2, Role.BlackA}
+        new Integer[]{Role.RedJoker, Role.RedKing, Role.RedA, Role.RedA, Role.BlackJoker, Role.Black2},
+        new Integer[]{Role.RedJoker, Role.RedKing, Role.RedA, Role.RedA, Role.BlackJoker, Role.Black2, Role.BlackA},
+        new Integer[]{Role.RedJoker, Role.RedKing, Role.RedA, Role.RedA, Role.RedA, Role.BlackJoker, Role.Black2, Role.BlackA}
     };
 
     public static boolean isGood(Role r) {
@@ -47,12 +48,12 @@ public class Role {
     }
 
     public String toString() {
-        if (this.type == RedJoker) return "大王";
-        if (this.type == King) return "K";
-        if (this.type == RedA) return "红A";
-        if (this.type == BlackJoker) return "小王";
-        if (this.type == _2) return "2";
-        if (this.type == BlackA) return "黑A";
+        if (this.type == RedJoker) return "红-大王";
+        if (this.type == RedKing) return "红-K";
+        if (this.type == RedA) return "红-A";
+        if (this.type == BlackJoker) return "黑-小王";
+        if (this.type == Black2) return "黑-2";
+        if (this.type == BlackA) return "黑-A";
         return null;
     }
 
