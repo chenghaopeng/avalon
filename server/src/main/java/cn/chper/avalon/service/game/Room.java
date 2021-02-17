@@ -68,6 +68,7 @@ public class Room {
     public boolean start(String starterUsername) {
         if (state != RoomState.WAITING) return false;
         if (!usernames.contains(starterUsername)) return false;
+        Collections.shuffle(usernames);
         userCount = usernames.size();
         if (userCount <= 5 || userCount >= 9) return false;
         List<Integer> roles = Arrays.asList(Role.roles[userCount]);
