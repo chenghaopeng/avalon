@@ -157,6 +157,15 @@ function App() {
     sendMessage("action", false);
   };
 
+  const handleEnterMeeting = () => {
+    const a = document.createElement('a');
+    a.href = 'https://talk.chper.cn/' + status.no;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   return (
     <div className="App">
       <div className="header">阿瓦隆</div>
@@ -173,6 +182,7 @@ function App() {
       </> }
       { connected && inRoom && <>
         <div>房间号 { status.no }</div>
+        <Button onClick={handleEnterMeeting}>进入视频房间</Button>
         { status.running && <Input.TextArea value={status.info} rows={3} /> }
         { status.running && !status.tasking && <>
           <div>选择本次任务的玩家</div>
