@@ -8,10 +8,8 @@ const getToken = () => sessionStorage.getItem("token") ?? "";
 const setToken = (token) => sessionStorage.setItem("token", token);
 const removeToken = () => sessionStorage.removeItem("token");
 
-const DEBUG = true;
-
-const server = DEBUG ? "localhost:8080" : "avalonserver.chper.cn";
-const safe = DEBUG ? "" : "s";
+const server = location.hostname;
+const safe = location.protocol === 'https:' ? 's' : '';
 
 const request = async (url, data) => {
   const result = await axios({

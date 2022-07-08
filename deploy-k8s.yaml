@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: avalon
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avalon-backend
+  namespace: avalon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avalon-backend
+  template:
+    metadata:
+      labels:
+        app: avalon-backend
+    spec:
+      containers:
+      - name: backend
+        image: registry.cn-hangzhou.aliyuncs.com/chaop-public/avalon-backend
+        ports:
+        - name: http
+          containerPort: 8080
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avalon-frontend
+  namespace: avalon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avalon-frontend
+  template:
+    metadata:
+      labels:
+        app: avalon-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: registry.cn-hangzhou.aliyuncs.com/chaop-public/avalon-frontend
+        ports:
+        - name: http
+          containerPort: 80
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: avalon-backend
+  namespace: avalon
+  labels:
+    app: avalon-backend
+spec:
+  selector:
+    app: avalon-backend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: avalon-frontend
+  namespace: avalon
+  labels:
+    app: avalon-frontend
+spec:
+  selector:
+    app: avalon-frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  name: avalon
+  namespace: avalon
+spec:
+  tls:
+  - hosts:
+    - avalon.chper.cn
+    secretName: cert
+  rules:
+  - host: avalon.chper.cn
+    http:
+      paths:
+      - path: /(api|game)
+        pathType: Prefix
+        backend: 
+          service:
+            name: avalon-backend
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: avalon-frontend
+            port:
+              number: 80
